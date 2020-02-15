@@ -1,18 +1,33 @@
 import React, { useState } from 'react'
 
+const Message = ({message}) => (message)
+ ? <div>
+    <p>{message}</p>
+  </div> 
+  : null
+
+
+
+
 const App = () => {
   const [ persons, setPersons] = useState([
     { name: 'Arto Hellas' }
   ]) 
   const [ newName, setNewName ] = useState('')
+  const [ message, setMessage ] = useState('')
 
 
   const addName = (e) => {
     e.preventDefault()
-    let addedName = {name:newName}
-    setPersons(persons.concat(addedName))
-    setNewName('')
-
+    if (persons.find(person => person.name === newName)) {
+      console.log(`${newName} is already added to phonebook`)
+      setMessage(`${newName} is already added to phonebook`)
+      setTimeout(() => setMessage(''), 3000)
+    } else {
+      let addedName = {name:newName}
+      setPersons(persons.concat(addedName))
+      setNewName('')
+    }
   }
 
   const inputChange = (e) => setNewName(e.target.value)
@@ -21,6 +36,7 @@ const App = () => {
 
   return (
     <div>
+      <Message message={message} />
       <h2>Phonebook</h2>
       <form onSubmit={addName}>
         <div>
