@@ -1,47 +1,43 @@
-import React, {useState} from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react'
+import ReactDOM from 'react-dom'
 
-
-// COMPONENTS
-const History = ({ allClicks }) => (allClicks.length) 
-  ? <div> button press history: {allClicks.join(' ')}</div>
-  : <div> The app is used by pressing the buttons </div>
-
-
-const Button = ({onClick, text}) => 
-  <button onClick={onClick} >
-    {text}
-  </button>
-
-
-const App = () => {
-  // STATE
-
-  const [clicks, setClicks] = useState({left:0, right:0})
-  const [allClicks, setAll] = useState([])
-
-
-  const handleLeftClick = () => {
-    setClicks({...clicks, left:clicks.left + 1})
-    setAll(allClicks.concat('L'))
+const notes = [
+  {
+    id: 1,
+    content: 'HTML is easy',
+    date: '2019-05-30T17:30:31.098Z',
+    important: true
+  },
+  {
+    id: 2,
+    content: 'Browser can execute only Javascript',
+    date: '2019-05-30T18:39:34.091Z',
+    important: false
+  },
+  {
+    id: 3,
+    content: 'GET and POST are the most important methods of HTTP protocol',
+    date: '2019-05-30T19:20:14.298Z',
+    important: true
   }
+]
 
-  const handleRightClick = () => {
-    setClicks({...clicks, right:clicks.right + 1})
-    setAll(allClicks.concat('R'))
-  }
+const App = (props) => {
+  const { notes } = props
 
   return (
     <div>
-      <div>
-        {clicks.left}
-        <Button onClick={handleLeftClick} text="left" />
-        <Button onClick={handleRightClick} text="right" />
-        {clicks.right}
-        <History allClicks={allClicks} />
-      </div>
+      <h1>Notes</h1>
+      <ul>
+        <li>{notes[0].content}</li>
+        <li>{notes[1].content}</li>
+        <li>{notes[2].content}</li>
+      </ul>
     </div>
   )
-  }
+}
 
-ReactDOM.render(<App />, document.getElementById('root'))
+ReactDOM.render(
+  <App notes={notes} />,
+  document.getElementById('root')
+)
