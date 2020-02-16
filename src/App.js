@@ -23,7 +23,7 @@ const App = () => {
   ]) 
 
   const [ message, setMessage ] = useState('')
-
+  const [ filterPhrase, setFilterPhrase ] = useState('') 
 
 
   // HELPERS
@@ -33,14 +33,23 @@ const App = () => {
   </div> 
   : null
 
-  
-  const numbers = () => persons.map(person => <Person key={person.name[0]} person={person} />)
+  const filteredPersons = filterPhrase
+    ? persons.filter(person => person.name.toLowerCase().includes(filterPhrase) )
+    : persons
+
+  const numbers = () => filteredPersons.map(person => <Person key={person.name[0]} person={person} />)
+
 
 
   return (
     <div>
       <Message message={message} />
       <h2>Phonebook</h2>
+      <div>
+
+        <input value={filterPhrase} onChange={(e) => setFilterPhrase(e.target.value.toLowerCase())} />
+      </div>
+      
       <Form 
         persons={persons}
         setPersons={setPersons}
