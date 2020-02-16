@@ -1,11 +1,8 @@
 import React, { useState } from 'react'
 import Form from './components/Form'
+import Person from './components/Person'
+import Filter from './components/Filter'
 
-
-const Person = ({ person }) => (
-<p><strong>{person.name}</strong>: {person.phone}</p>
-
-)
 
 
 const App = () => {
@@ -20,7 +17,7 @@ const App = () => {
     name: 'Martin Szyska',
     phone: "0178-7825900"
  },
-  ]) 
+  ])
 
   const [ message, setMessage ] = useState('')
   const [ filterPhrase, setFilterPhrase ] = useState('') 
@@ -39,16 +36,13 @@ const App = () => {
 
   const numbers = () => filteredPersons.map(person => <Person key={person.name[0]} person={person} />)
 
-
+  const handleFilter = (e) => setFilterPhrase(e.target.value.toLowerCase())
 
   return (
     <div>
       <Message message={message} />
       <h2>Phonebook</h2>
-      <div>
-
-        <input value={filterPhrase} onChange={(e) => setFilterPhrase(e.target.value.toLowerCase())} />
-      </div>
+      <Filter value={filterPhrase} onChange={handleFilter} />
       
       <Form 
         persons={persons}
