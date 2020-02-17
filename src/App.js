@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Note from './components/Note'
-
+import axios from 'axios'
 
 
 const Form = ({onSubmit, onChange, text, input}) => (
@@ -14,9 +14,16 @@ const Form = ({onSubmit, onChange, text, input}) => (
 )
 
 const App = (props) => {
-    const [notes, setNotes] = useState(props.notes)
+    const [notes, setNotes] = useState([])
     const [newNote, setNewNote] = useState('a new note goes here')
     const [showAll, setShowAll] = useState(true)
+
+    // LOAD as effect
+    useEffect(() => {
+      axios.get('http://localhost:3001/notes')
+      .then(res => setNotes(res.data))
+    }, [])
+
 
     // HANDLERS
     const addNote = (e) => {
