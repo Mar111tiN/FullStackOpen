@@ -10,7 +10,7 @@ const Input = ({ text, value, onChange }) => (
 </div>
 )
 
-const Form = ({ persons, setPersons, setMessage }) => {
+const Form = ({ numbers, setNumbers, setMessage }) => {
 
   // STATE
   const [ newName, setNewName ] = useState('')
@@ -28,28 +28,45 @@ const Form = ({ persons, setPersons, setMessage }) => {
   const addPerson = (e) => {
     e.preventDefault()
 
-    // handle person exists
-    if (persons.find(person => person.name === newName)) {
-      console.log(`${newName} is already added to phonebook`)
-      setMessage(`${newName} is already added to phonebook`)
-      setTimeout(() => setMessage(''), 3000)
-
     // handle no number
-    } else if (!isValid(newPhone)) {
+    if (!isValid(newPhone)) {
       setMessage('No valid phone number has been given')
       setTimeout(() => setMessage(''), 3000)
-    } else {
-      let newNumber = {
-        name:newName,
-        phone: newPhone
+    } else { 
+      const updatedNumber = numbers.find(number => number.name === newName)
+      if (updatedNumber) { // handle person exists
+        console.log('updatedNumber', updatedNumber)
+        if (window.confirm(`Do you want to change ${newName}'s number?`) === true) {
+          const newNumber = {
+            ...updatedNumber,
+            phone: newPhone
+          }
+          phoneService.update(newNumber)
+            .then(updatedNumber => {
+              setNumbers(numbers.map(number => (number.id === newNumber.id)
+                ? newNumber
+                : number
+              ))
+          })
+          setMessage(`${newName} has a new phone number`)
+          setTimeout(() => setMessage(''), 3000)
+        } else {
+          setMessage(`${newName} is already taken`)
+          setTimeout(() => setMessage(''), 3000)
+        }
+      } else {
+        let newNumber = {
+          name:newName,
+          phone: newPhone
+        }
+        phoneService.create(newNumber)
+          .then((addedNumber) => {
+            setNumbers(numbers.concat(addedNumber))
+            setNewName('')
+            setNewPhone('')
+          })
       }
-      phoneService.createNumber(newNumber)
-        .then((addedNumber) => {
-          setPersons(persons.concat(addedNumber))
-          setNewName('')
-          setNewPhone('')
-        })
-    }
+    } 
   }
 
   return (
@@ -65,9 +82,6 @@ const Form = ({ persons, setPersons, setMessage }) => {
     </div>
 
   )
+
 }
-
 export default Form
-
-
-

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Form from './components/Form'
-import Person from './components/Person'
+import Number from './components/Number'
 import Filter from './components/Filter'
 import phoneService from './services/phonebook'
 
@@ -8,12 +8,12 @@ import phoneService from './services/phonebook'
 const App = () => {
 
   // STATE
-  const [ persons, setPersons] = useState([])
+  const [ numbers, setNumbers] = useState([])
   const [ message, setMessage ] = useState('')
   const [ filterPhrase, setFilterPhrase ] = useState('') 
 
   useEffect(() => {
-    phoneService.getAll().then(phonebook => setPersons(phonebook))
+    phoneService.getAll().then(phonebook => setNumbers(phonebook))
   },[])
 
 
@@ -24,11 +24,24 @@ const App = () => {
   </div> 
   : null
 
-  const filteredPersons = filterPhrase
-    ? persons.filter(person => person.name.toLowerCase().includes(filterPhrase) )
-    : persons
+  const handleDelete = (delNumber) => () => {
+    phoneService.deleteNumber(delNumber.id)
+      .then(deletedNumber => {
+        setMessage(`${delNumber.name} deleted`)
+        setTimeout(() => setMessage(''), 3000)
+        setNumbers(numbers.filter(number => number.id !== delNumber.id))
+      })
+  }
 
-  const numbers = () => filteredPersons.map(person => <Person key={person.name[0]} person={person} />)
+  const filteredNumbers = filterPhrase
+    ? numbers.filter(number => number.name.toLowerCase().includes(filterPhrase) )
+    : numbers
+
+  const showNumbers = () => filteredNumbers.map(number => <Number 
+      key={number.id} 
+      number={number}
+      handleDelete={handleDelete(number)}
+    />)
 
   const handleFilter = (e) => setFilterPhrase(e.target.value.toLowerCase())
 
@@ -39,12 +52,12 @@ const App = () => {
       <Filter value={filterPhrase} onChange={handleFilter} />
       
       <Form 
-        persons={persons}
-        setPersons={setPersons}
+        numbers={numbers}
+        setNumbers={setNumbers}
         setMessage={setMessage}
       />
       <h2>Numbers</h2>
-      {numbers()}
+      {showNumbers()}
     </div>
   )
 }

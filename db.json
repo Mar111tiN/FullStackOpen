@@ -1,19 +1,14 @@
 {
   "persons": [
     {
-      "id": 1,
-      "name": "Arto Hellas",
-      "phone": "040-1234567"
+      "name": "Franziska Peter",
+      "phone": "234235",
+      "id": 6
     },
     {
-      "id": 2,
       "name": "Martin Szyska",
-      "phone": "0178-7825900"
-    },
-    {
-      "name": "Franzi",
-      "phone": "234234",
-      "id": 3
+      "phone": "234",
+      "id": 7
     }
   ]
 }
