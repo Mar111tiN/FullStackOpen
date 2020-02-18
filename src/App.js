@@ -1,26 +1,20 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Form from './components/Form'
 import Person from './components/Person'
 import Filter from './components/Filter'
-
+import phoneService from './services/phonebook'
 
 
 const App = () => {
 
   // STATE
-  const [ persons, setPersons] = useState([
-    { 
-      name: 'Arto Hellas',
-      phone: "040-1234567"
-   },
-   { 
-    name: 'Martin Szyska',
-    phone: "0178-7825900"
- },
-  ])
-
+  const [ persons, setPersons] = useState([])
   const [ message, setMessage ] = useState('')
   const [ filterPhrase, setFilterPhrase ] = useState('') 
+
+  useEffect(() => {
+    phoneService.getAll().then(phonebook => setPersons(phonebook))
+  },[])
 
 
   // HELPERS

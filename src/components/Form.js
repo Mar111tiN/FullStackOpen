@@ -1,5 +1,5 @@
 import React, { useState} from 'react'
-
+import phoneService from '../services/phonebook'
 
 const Input = ({ text, value, onChange }) => (
   <div>
@@ -39,13 +39,16 @@ const Form = ({ persons, setPersons, setMessage }) => {
       setMessage('No valid phone number has been given')
       setTimeout(() => setMessage(''), 3000)
     } else {
-      let addedName = {
+      let newNumber = {
         name:newName,
         phone: newPhone
       }
-      setPersons(persons.concat(addedName))
-      setNewName('')
-      setNewPhone('')
+      phoneService.createNumber(newNumber)
+        .then((addedNumber) => {
+          setPersons(persons.concat(addedNumber))
+          setNewName('')
+          setNewPhone('')
+        })
     }
   }
 

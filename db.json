@@ -1,0 +1,19 @@
+{
+  "persons": [
+    {
+      "id": 1,
+      "name": "Arto Hellas",
+      "phone": "040-1234567"
+    },
+    {
+      "id": 2,
+      "name": "Martin Szyska",
+      "phone": "0178-7825900"
+    },
+    {
+      "name": "Franzi",
+      "phone": "234234",
+      "id": 3
+    }
+  ]
+}
