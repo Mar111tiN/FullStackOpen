@@ -4,14 +4,14 @@
       "id": 1,
       "content": "HTML is easy",
       "date": "2019-05-30T17:30:31.098Z",
-      "important": false,
+      "important": true,
       "importance": true
     },
     {
       "id": 2,
       "content": "Browser can execute only Javascript",
       "date": "2019-05-30T18:39:34.091Z",
-      "important": false
+      "important": true
     },
     {
       "id": 3,
@@ -42,6 +42,24 @@
       "content": "Martins new note",
       "date": "2020-02-18T06:49:05.740Z",
       "important": false
+    },
+    {
+      "id": 8,
+      "content": "Here is just another note",
+      "date": "2020-02-18T14:01:16.610Z",
+      "important": false
+    },
+    {
+      "id": 9,
+      "content": "Testing another note",
+      "date": "2020-02-18T14:02:10.104Z",
+      "important": false
+    },
+    {
+      "id": 10,
+      "content": "Enter a new note",
+      "date": "2020-02-19T08:22:19.325Z",
+      "important": true
     }
   ]
 }
