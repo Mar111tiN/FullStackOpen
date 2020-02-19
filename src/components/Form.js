@@ -1,5 +1,5 @@
 import React, { useState} from 'react'
-
+import phoneService from '../services/phonebook'
 
 const Input = ({ text, value, onChange }) => (
   <div>
@@ -10,7 +10,7 @@ const Input = ({ text, value, onChange }) => (
 </div>
 )
 
-const Form = ({ persons, setPersons, setMessage }) => {
+const Form = ({ numbers, setNumbers, setMessage }) => {
 
   // STATE
   const [ newName, setNewName ] = useState('')
@@ -28,25 +28,63 @@ const Form = ({ persons, setPersons, setMessage }) => {
   const addPerson = (e) => {
     e.preventDefault()
 
-    // handle person exists
-    if (persons.find(person => person.name === newName)) {
-      console.log(`${newName} is already added to phonebook`)
-      setMessage(`${newName} is already added to phonebook`)
-      setTimeout(() => setMessage(''), 3000)
-
     // handle no number
-    } else if (!isValid(newPhone)) {
-      setMessage('No valid phone number has been given')
-      setTimeout(() => setMessage(''), 3000)
-    } else {
-      let addedName = {
-        name:newName,
-        phone: newPhone
+    if (!isValid(newPhone)) {
+      setMessage({
+        text: 'No valid phone number has been given',
+        type: 'error'
+      })
+      setTimeout(() => setMessage(null), 3000)
+    } else { 
+      const updatedNumber = numbers.find(number => number.name === newName)
+      if (updatedNumber) { // handle person exists
+        if (window.confirm(`Do you want to change ${newName}'s number?`) === true) {
+          const newNumber = {
+            ...updatedNumber,
+            phone: newPhone
+          }
+          phoneService
+          .update(newNumber)
+            .then(updatedNumber => {
+              setNumbers(numbers.map(number => (number.id === newNumber.id)
+                ? newNumber
+                : number
+              ))
+            })
+            .catch(e => {
+              setMessage({text: 'not on server', type: 'error'})
+              setTimeout(() => setMessage(null), 3000)
+            })
+          setMessage({
+            text: `${newName} has a new phone number`,
+            type: 'success'
+          })
+          setTimeout(() => setMessage(null), 3000)
+        } else {
+          setMessage({
+            text: `${newName} is already taken`,
+            type: 'error'
+          })
+          setTimeout(() => setMessage(null), 3000)
+        }
+      } else {
+        let newNumber = {
+          name:newName,
+          phone: newPhone
+        }
+        phoneService.create(newNumber)
+          .then((addedNumber) => {
+            setNumbers(numbers.concat(addedNumber))
+          })
+        setMessage({
+          text: `${newName} has been added to phone list`,
+          type: 'success'
+        })
+        setTimeout(() => setMessage(null), 3000)
       }
-      setPersons(persons.concat(addedName))
       setNewName('')
       setNewPhone('')
-    }
+    } 
   }
 
   return (
@@ -62,9 +100,6 @@ const Form = ({ persons, setPersons, setMessage }) => {
     </div>
 
   )
+
 }
-
 export default Form
-
-
-

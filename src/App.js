@@ -1,40 +1,61 @@
 import React, { useState, useEffect } from 'react'
 import Form from './components/Form'
-import Person from './components/Person'
+import Number from './components/Number'
 import Filter from './components/Filter'
-import axios from 'axios'
+import phoneService from './services/phonebook'
+import './index.css'
+
+
+const Message = ({message}) => (message)
+? <div className={message.type}>
+   <p>{message.text}</p>
+ </div> 
+ : null
 
 
 const App = () => {
 
   // STATE
-  const [ persons, setPersons] = useState([])
-  const [ message, setMessage ] = useState('')
+  const [ numbers, setNumbers] = useState([])
+  const [ message, setMessage ] = useState(null)
   const [ filterPhrase, setFilterPhrase ] = useState('') 
 
-  const getData = (url) => () => {
-    axios.get(url)
-      .then(res => {
-        console.log(`received data from ${url}`)
-        setPersons(res.data)
-      })
-    }
-
-  useEffect(getData('http://localhost:3001/persons'), [])
+  useEffect(() => {
+    phoneService.getAll().then(phonebook => setNumbers(phonebook))
+  },[])
 
 
   // HELPERS
-  const Message = ({message}) => (message)
- ? <div>
-    <p>{message}</p>
-  </div> 
-  : null
 
-  const filteredPersons = filterPhrase
-    ? persons.filter(person => person.name.toLowerCase().includes(filterPhrase) )
-    : persons
 
-  const numbers = () => filteredPersons.map(person => <Person key={person.name} person={person} />)
+  const handleDelete = (delNumber) => () => {
+    phoneService.deleteNumber(delNumber.id)
+      .then(deletedNumber => {
+        setMessage({
+          text: `${delNumber.name} deleted`,
+          type: 'warning'
+        })
+        setTimeout(() => setMessage(null), 3000)
+        setNumbers(numbers.filter(number => number.id !== delNumber.id))
+      })
+      .catch(e => {
+        setMessage({text: 'not on server', type: 'error'})
+        setTimeout(() => {
+          setMessage(null)
+          setNumbers(numbers.filter(number => number.id !== delNumber.id))
+        }, 3000)
+      })
+  }
+
+  const filteredNumbers = filterPhrase
+    ? numbers.filter(number => number.name.toLowerCase().includes(filterPhrase) )
+    : numbers
+
+  const showNumbers = () => filteredNumbers.map(number => <Number 
+      key={number.id} 
+      number={number}
+      handleDelete={handleDelete(number)}
+    />)
 
   const handleFilter = (e) => setFilterPhrase(e.target.value.toLowerCase())
 
@@ -45,12 +66,12 @@ const App = () => {
       <Filter value={filterPhrase} onChange={handleFilter} />
       
       <Form 
-        persons={persons}
-        setPersons={setPersons}
+        numbers={numbers}
+        setNumbers={setNumbers}
         setMessage={setMessage}
       />
       <h2>Numbers</h2>
-      {numbers()}
+      {showNumbers()}
     </div>
   )
 }
