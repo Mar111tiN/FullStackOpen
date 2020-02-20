@@ -1,8 +1,21 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
-app.use(bodyParser.json())
 
+// MIDDLEWARE
+app.use(bodyParser.json())
+const reqLogger = (req, res, next) => {
+  console.log('Method:', req.method)
+  console.log('Path:', req.path)
+  console.log('Body:', req.body)
+  console.log('-------')
+  next()
+}
+app.use(reqLogger)
+
+const unknownEndpoint = (req, res) => {
+  res.status(404).send({error: 'unknown endpoint'})
+}
 
 let notes = [
     {
@@ -74,6 +87,8 @@ app.delete('/notes/:id', (req, res) => {
   notes = notes.filter(note => note.id !== id)
   res.status(204).end()
 })
+
+app.use(unknownEndpoint)
 
 const PORT = 3001
 
