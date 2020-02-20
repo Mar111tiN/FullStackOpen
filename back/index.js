@@ -1,9 +1,14 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-
+const morgan = require('morgan')
 const app = express()
 
+
+// middleware
 app.use(bodyParser.json())
+
+morgan.token('Post', (req, res) => JSON.stringify(req.body))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :Post'))
 
 let numbers = [
   {
@@ -36,7 +41,6 @@ let numbers = [
 const generateID = () => (numbers.length)
   ? Math.max(...numbers.map(number => number.id)) + 1
   : 1
-
 
 app.get('/info', (req, res) => {
   res.send(`<p>Phonebook has info for ${numbers.length} people</p>
