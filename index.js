@@ -8,7 +8,6 @@ const cors = require('cors')
 app.use(cors())
 // creaet default folder to look for static files
 app.use(bodyParser.json())
-
 app.use(express.static('build'))
 
 const reqLogger = (req, res, next) => {
