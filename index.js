@@ -45,10 +45,6 @@ let notes = [
     }
   ]
 
-app.get('/', (req, res) => {
-  res.send('<h1>Hello World</h1>')
-})
-
 app.get('/notes', (req, res) => {
   res.json(notes)
 })
