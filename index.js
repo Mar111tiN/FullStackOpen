@@ -44,11 +44,11 @@ let notes = [
     }
   ]
 
-app.get('/notes', (req, res) => {
+app.get('/api/notes', (req, res) => {
   res.json(notes)
 })
 
-app.get('/notes/:id', (req, res) => {
+app.get('/api/notes/:id', (req, res) => {
   const id = Number(req.params.id)
   const note = notes.find(note => note.id === id)
   if (note) {
@@ -58,7 +58,7 @@ app.get('/notes/:id', (req, res) => {
   }
 })
 
-app.post('/notes', (req, res) => {
+app.post('/api/notes', (req, res) => {
   const body = req.body
 
   const generateID = () => (notes.length > 0)
@@ -82,7 +82,7 @@ app.post('/notes', (req, res) => {
 })
 
 
-app.delete('/notes/:id', (req, res) => {
+app.delete('/api/notes/:id', (req, res) => {
   const id = Number(req.params.id)
   const note = notes.find(n => n.id === id)
   if (note) {
@@ -95,7 +95,7 @@ app.delete('/notes/:id', (req, res) => {
   }
 })
 
-app.put('/notes/:id', (req, res) => {
+app.put('/api/notes/:id', (req, res) => {
   const body = req.body
   const id = Number(req.params.id)
   const note = notes.find(n => n.id === id)
