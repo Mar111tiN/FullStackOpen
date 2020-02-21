@@ -6,7 +6,11 @@ const cors = require('cors')
 // MIDDLEWARE
 // circumvent cross-origin resource sharing policy
 app.use(cors())
+// creaet default folder to look for static files
 app.use(bodyParser.json())
+
+app.use(express.static('build'))
+
 const reqLogger = (req, res, next) => {
   console.log('Method:', req.method)
   console.log('Path:', req.path)
@@ -55,12 +59,12 @@ app.get('/notes/:id', (req, res) => {
   if (note) {
     res.json(note)
   } else {
-    res.status(400).end()
+    res.status(404).end()
   }
 })
 
 app.post('/notes', (req, res) => {
-  const note = req.body
+  const body = req.body
 
   const generateID = () => (notes.length > 0)
     ? Math.max(...notes.map(n => n.id)) + 1
@@ -71,12 +75,10 @@ app.post('/notes', (req, res) => {
     return res.status(404).json({
       error: 'content missing'
     })
-
   }
-
   const newNote = {
     id: generateID(),
-    text: note.content,
+    content: body.content,
     date: new Date(),
     important: body.import || false,
   }
@@ -87,8 +89,37 @@ app.post('/notes', (req, res) => {
 
 app.delete('/notes/:id', (req, res) => {
   const id = Number(req.params.id)
-  notes = notes.filter(note => note.id !== id)
+  const note = notes.find(n => n.id === id)
+  if (note) {
+    notes = notes.filter(note => note.id !== id)
   res.status(204).end()
+  } else {
+    res.status(404).json({
+      error: 'Note does note live on server'
+    })
+  }
+})
+
+app.put('/notes/:id', (req, res) => {
+  const body = req.body
+  const id = Number(req.params.id)
+  const note = notes.find(n => n.id === id)
+  if (note) {
+    // update 
+    const newNote = {
+      ...note,
+      ...body,
+      date: new Date()
+    }
+    notes = notes.map(n => (n.id === id)
+      ? newNote
+      : n)
+    res.json(newNote)
+  } else {
+    res.status(404).json({
+      error: 'Note does note live on server'
+    })
+  }
 })
 
 app.use(unknownEndpoint)
