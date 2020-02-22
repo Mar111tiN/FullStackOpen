@@ -2,11 +2,12 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const app = express()
-
+const cors = require('cors')
 
 // middleware
 app.use(bodyParser.json())
-
+app.use(express.static('build'))
+app.use(cors())
 morgan.token('Post', (req, res) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :Post'))
 
@@ -91,6 +92,8 @@ app.delete('/api/persons/:id', (req, res) => {
         res.status(400).end()
     }
 })
+
+app.use
 
 const PORT = 3001
 
