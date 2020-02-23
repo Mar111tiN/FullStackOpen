@@ -7,7 +7,7 @@
     "start": "node index.js",
     "watch": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:ui": "rm -rf build && cd ../frontend && npm run build && cp -r build ../express && cd ../express",
+    "build:ui": "rm -rf build && cd frontend && npm run build && cp -r build .. && cd ..",
     "deploy:full": "npm run build:ui && git add -A . && git commit -m build && git push",
     "git": "git add -A . && git commit -m build && git push"
   },

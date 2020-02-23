@@ -3,6 +3,38 @@ const app = express()
 const bodyParser = require('body-parser')
 const cors = require('cors')
 
+// DB connection
+const mongoose = require('mongoose')
+const password = "b38Ybx3GVvmoaqRg"
+const collectionName = 'notes-app'
+
+const url = `mongodb+srv://fullstack_user1:${password}@msmongo-x00kk.mongodb.net/${collectionName}?retryWrites=true&w=majority`
+
+mongoConfig = { 
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+ }
+
+mongoose.connect(url, mongoConfig)
+
+const noteSchema = new mongoose.Schema({
+    content: String,
+    date: Date,
+    important: Boolean,
+})
+
+
+const Note = mongoose.model('Note', noteSchema)
+
+noteSchema.set('toJSON', {
+  transform: (document, obj) => {
+    obj.id = "obj._id.toString()"
+    delete obj._id
+    delete obj.__v
+  }
+})
+
+
 // MIDDLEWARE
 // circumvent cross-origin resource sharing policy
 app.use(cors())
@@ -23,29 +55,13 @@ const unknownEndpoint = (req, res) => {
   res.status(404).send({error: 'unknown endpoint'})
 }
 
-let notes = [
-    {
-      id: 1,
-      content: "HTML is easy",
-      date: "2019-05-30T17:30:31.098Z",
-      important: true
-    },
-    {
-      id: 2,
-      content: "Browser can execute only Javascript",
-      date: "2019-05-30T18:39:34.091Z",
-      important: false
-    },
-    {
-      id: 3,
-      content: "GET and POST are the most important methods of HTTP protocol",
-      date: "2019-05-30T19:20:14.298Z",
-      important: true
-    }
-  ]
+// ROUTES
 
 app.get('/api/notes', (req, res) => {
-  res.json(notes)
+  Note.find({})
+    .then(notes => {
+      res.json(notes.map(note => note.toJSON()))
+    })
 })
 
 app.get('/api/notes/:id', (req, res) => {

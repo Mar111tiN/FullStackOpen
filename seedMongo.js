@@ -1,11 +1,13 @@
 const mongoose = require('mongoose')
-if ( process.argv.length < 3) {
+const argCount = process.argv.length
+
+if ( argCount < 3) {
     console.log('give password as argument')
     process.exit(1)
 }
 
 const password = process.argv[2]
-const collectionName = 'test2'
+const collectionName = 'notes-app'
 
 const url = `mongodb+srv://fullstack_user1:${password}@msmongo-x00kk.mongodb.net/${collectionName}?retryWrites=true&w=majority`
 
@@ -51,4 +53,20 @@ const addNote = (note) => {
     })
 }
 
-notes.forEach(addNote)
+const showNotes = () => {
+    Note.find({}).then(allNotes => {
+        allNotes.forEach(note => console.log(`${note.content} (${(note.important) 
+            ? "important" 
+            : "not important"})`))
+        mongoose.connection.close()
+    })
+}
+
+if ( argCount === 3) {
+    notes.forEach(addNote)
+} else {
+    switch (process.argv[3]) {
+        case "seed": notes.forEach(addNote); break;
+        case "show": showNotes(); break;
+    }
+}
