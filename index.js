@@ -1,39 +1,13 @@
+require('dotenv').config()
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const cors = require('cors')
 
-// DB connection
-const mongoose = require('mongoose')
-const password = "b38Ybx3GVvmoaqRg"
-const collectionName = 'notes-app'
+// models
+const Note = require('./models/note')
 
-const url = `mongodb+srv://fullstack_user1:${password}@msmongo-x00kk.mongodb.net/${collectionName}?retryWrites=true&w=majority`
-
-mongoConfig = { 
-    useNewUrlParser: true,
-    useUnifiedTopology: true
- }
-
-mongoose.connect(url, mongoConfig)
-
-const noteSchema = new mongoose.Schema({
-    content: String,
-    date: Date,
-    important: Boolean,
-})
-
-
-const Note = mongoose.model('Note', noteSchema)
-
-noteSchema.set('toJSON', {
-  transform: (document, obj) => {
-    obj.id = "obj._id.toString()"
-    delete obj._id
-    delete obj.__v
-  }
-})
-
+// const url = 
 
 // MIDDLEWARE
 // circumvent cross-origin resource sharing policy
@@ -56,7 +30,6 @@ const unknownEndpoint = (req, res) => {
 }
 
 // ROUTES
-
 app.get('/api/notes', (req, res) => {
   Note.find({})
     .then(notes => {
@@ -65,21 +38,20 @@ app.get('/api/notes', (req, res) => {
 })
 
 app.get('/api/notes/:id', (req, res) => {
-  const id = Number(req.params.id)
-  const note = notes.find(note => note.id === id)
-  if (note) {
-    res.json(note)
-  } else {
-    res.status(404).end()
-  }
-})
+  Note.findById(req.params.id)
+    .then(note => (note) 
+      ? res.json(note.toJSON())
+      : res.status(404).send({
+        error: "note not found on DB"
+      }))
+    .catch( e => res.status(404).send({
+      error: "malformed ID",
+      details: e
+    })) 
+  })
 
 app.post('/api/notes', (req, res) => {
   const body = req.body
-
-  const generateID = () => (notes.length > 0)
-    ? Math.max(...notes.map(n => n.id)) + 1
-    : 1
 
   // no request body
   if (!body.content) {
@@ -87,28 +59,27 @@ app.post('/api/notes', (req, res) => {
       error: 'content missing'
     })
   }
-  const newNote = {
-    id: generateID(),
+  const newNote = new Note({
     content: body.content,
     date: new Date(),
     important: body.import || false,
-  }
-  notes = notes.concat(newNote)
-  res.json(newNote)
+  })
+  console.log('saving', )
+  newNote.save().then(savedNote => res.json(savedNote.toJSON()))
 })
 
 
 app.delete('/api/notes/:id', (req, res) => {
-  const id = Number(req.params.id)
-  const note = notes.find(n => n.id === id)
-  if (note) {
-    notes = notes.filter(note => note.id !== id)
-  res.status(204).end()
-  } else {
+  Note.findById(req.params.id)
+    .then(note => {
+      note.delete()
+      console.log(`Note ${note.content} deleted`)
+    })
+  .catch( e => {
     res.status(404).json({
       error: 'Note does note live on server'
     })
-  }
+  })
 })
 
 app.put('/api/notes/:id', (req, res) => {
@@ -135,7 +106,7 @@ app.put('/api/notes/:id', (req, res) => {
 
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT  // || 3001
 
 app.listen(PORT, () => {
 console.log(`Server running on port ${PORT}`)

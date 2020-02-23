@@ -1,16 +1,17 @@
 const mongoose = require('mongoose')
 const argCount = process.argv.length
 
-if ( argCount < 3) {
-    console.log('give password as argument')
-    process.exit(1)
-}
+// if ( argCount < 3) {
+//     console.log('give password as argument')
+//     process.exit(1)
+// }
 
 const password = process.argv[2]
 const collectionName = 'notes-app'
 
-const url = `mongodb+srv://fullstack_user1:${password}@msmongo-x00kk.mongodb.net/${collectionName}?retryWrites=true&w=majority`
+// const url = `mongodb+srv://fullstack_user1:${password}@msmongo-x00kk.mongodb.net/${collectionName}?retryWrites=true&w=majority`
 
+const url = 'mongodb://127.0.0.1:27017/fullstack'
 mongoConfig = { 
     useNewUrlParser: true,
     useUnifiedTopology: true
