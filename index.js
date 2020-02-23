@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const app = express()
 const cors = require('cors')
+const mongoose = require('mongoose')
 
 // middleware
 app.use(bodyParser.json())
@@ -10,6 +11,8 @@ app.use(cors())
 app.use(express.static('build'))
 morgan.token('Post', (req, res) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :Post'))
+
+const url = `mongodb+srv://fullstack_user1:${password}@msmongo-x00kk.mongodb.net/test?retryWrites=true&w=majority`
 
 let numbers = [
   {
