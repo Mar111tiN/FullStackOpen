@@ -9,13 +9,26 @@ const Note = require('./models/note')
 
 // const url = 
 
-// MIDDLEWARE
-// circumvent cross-origin resource sharing policy
-app.use(cors())
-// creaet default folder to look for static files
-app.use(bodyParser.json())
-app.use(express.static('build'))
 
+
+
+
+// MIDDLEWARE
+//MW:ERROR HANDLER
+const errorHandler = (e, req, res, next) => {
+  console.log(e.message)
+  if (e.name === 'CastError' && e.kind === 'ObjectId') {
+    return res.status(400).send({
+      error: "malformed ID",
+      details: e
+  })} else {
+    return res.status(404).send({
+      error: 'Note does note live on server'
+    })
+  }
+  next(e)
+}
+// MW:LOGGING
 const reqLogger = (req, res, next) => {
   console.log('Method:', req.method)
   console.log('Path:', req.path)
@@ -23,31 +36,37 @@ const reqLogger = (req, res, next) => {
   console.log('-------')
   next()
 }
-app.use(reqLogger)
 
+// MW: UNKNOWN
 const unknownEndpoint = (req, res) => {
   res.status(404).send({error: 'unknown endpoint'})
 }
+
+// circumvent cross-origin resource sharing policy
+app.use(cors())
+// creaet default folder to look for static files
+app.use(bodyParser.json())
+app.use(express.static('build'))
+app.use(reqLogger)
+
 
 // ROUTES
 app.get('/api/notes', (req, res) => {
   Note.find({})
     .then(notes => {
+      console.log(notes)
       res.json(notes.map(note => note.toJSON()))
     })
 })
 
-app.get('/api/notes/:id', (req, res) => {
+app.get('/api/notes/:id', (req, res, next) => {
   Note.findById(req.params.id)
     .then(note => (note) 
       ? res.json(note.toJSON())
       : res.status(404).send({
         error: "note not found on DB"
       }))
-    .catch( e => res.status(404).send({
-      error: "malformed ID",
-      details: e
-    })) 
+    .catch( e => next(e)) 
   })
 
 app.post('/api/notes', (req, res) => {
@@ -55,7 +74,7 @@ app.post('/api/notes', (req, res) => {
 
   // no request body
   if (!body.content) {
-    return res.status(404).json({
+    return res.status(404).send({
       error: 'content missing'
     })
   }
@@ -68,43 +87,33 @@ app.post('/api/notes', (req, res) => {
   newNote.save().then(savedNote => res.json(savedNote.toJSON()))
 })
 
-
-app.delete('/api/notes/:id', (req, res) => {
-  Note.findById(req.params.id)
-    .then(note => {
-      note.delete()
-      console.log(`Note ${note.content} deleted`)
-    })
-  .catch( e => {
-    res.status(404).json({
-      error: 'Note does note live on server'
-    })
-  })
+app.delete('/api/notes/:id', (req, res, next) => {
+  Note.findByIdAndRemove(req.params.id)
+    .then(delNote => (delNote) 
+      ? res.status(204).end()
+      : res.status(404).send({
+        error: 'note not found'
+      })
+    )
+    .catch(e => next(e))
 })
 
-app.put('/api/notes/:id', (req, res) => {
+app.put('/api/notes/:id', (req, res, next) => {
   const body = req.body
-  const id = Number(req.params.id)
-  const note = notes.find(n => n.id === id)
-  if (note) {
-    // update 
-    const newNote = {
-      ...note,
-      ...body,
-      date: new Date()
-    }
-    notes = notes.map(n => (n.id === id)
-      ? newNote
-      : n)
-    res.json(newNote)
-  } else {
-    res.status(404).json({
-      error: 'Note does note live on server'
-    })
+  const id = req.params.id
+
+  const updatedNote = {
+    content: body.content,
+    important: body.important,
   }
+  Note.findByIdAndUpdate(id, updatedNote, {new: true})
+    .then(updatedNote => res.json(updatedNote.toJSON()))
+    .catch(e => next(error))
 })
 
 app.use(unknownEndpoint)
+app.use(errorHandler)
+
 
 const PORT = process.env.PORT  // || 3001
 
