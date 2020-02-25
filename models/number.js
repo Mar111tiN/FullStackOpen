@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const uniqueValidator = require('mongoose-unique-validator')
 
 const localDBurl = 'mongodb://127.0.0.1:27017/fullstack'
 const url = process.env.MONGODB_URL || localDBurl
@@ -17,8 +18,15 @@ mongoose.connect(url, mongoConfig)
 
 
 const numberSchema = new mongoose.Schema({
-    name: String,
-    phone: String
+    name: {
+        type: String,
+        unique: true,
+        required: true
+    }
+    phone: {
+        type: String,
+        required: true
+    }
 })
 
 numberSchema.set('toJSON', {
@@ -28,6 +36,7 @@ numberSchema.set('toJSON', {
         delete obj.__v
     } 
 })
+numberSchema.plugin(uniqueValidator)
 
 const Number = mongoose.model('Number', numberSchema)
 
