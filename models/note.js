@@ -16,8 +16,15 @@ mongoose.connect(url, mongoConfig)
  .catch(e => console.log('error connecting to MongoDB'))
 
  const noteSchema = new mongoose.Schema({
-  content: String,
-  date: Date,
+  content: {
+    type: String,
+    minlength: 5,
+    required: true
+  },
+  date: {
+    type: Date,
+    required: true
+  },
   important: Boolean,
 })
 
@@ -33,4 +40,4 @@ const Note = mongoose.model('Note', noteSchema)
 
 
 
-module.exports = mongoose.model('Note', noteSchema)
+module.exports = Note

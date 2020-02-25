@@ -7,12 +7,6 @@ const cors = require('cors')
 // models
 const Note = require('./models/note')
 
-// const url = 
-
-
-
-
-
 // MIDDLEWARE
 //MW:ERROR HANDLER
 const errorHandler = (e, req, res, next) => {
@@ -20,14 +14,21 @@ const errorHandler = (e, req, res, next) => {
   if (e.name === 'CastError' && e.kind === 'ObjectId') {
     return res.status(400).send({
       error: "malformed ID",
-      details: e
-  })} else {
-    return res.status(404).send({
-      error: 'Note does note live on server'
+      details: e.message
+  })} else if (e.name == 'ValidationError') {
+    return res.status(400).send({
+      error: "POST body not valid",
+      details: e.message
     })
   }
-  next(e)
+  else {
+    return res.status(404).send({
+      error: 'Note does note live on server',
+      details: e.message
+    })
+  }
 }
+
 // MW:LOGGING
 const reqLogger = (req, res, next) => {
   console.log('Method:', req.method)
@@ -53,11 +54,9 @@ app.use(reqLogger)
 // ROUTES
 app.get('/api/notes', (req, res) => {
   Note.find({})
-    .then(notes => {
-      console.log(notes)
-      res.json(notes.map(note => note.toJSON()))
+    .then(notes => notes.map(note => note.toJSON()))
+    .then(jsonNotes => res.json(jsonNotes))
     })
-})
 
 app.get('/api/notes/:id', (req, res, next) => {
   Note.findById(req.params.id)
@@ -69,23 +68,21 @@ app.get('/api/notes/:id', (req, res, next) => {
     .catch( e => next(e)) 
   })
 
-app.post('/api/notes', (req, res) => {
+app.post('/api/notes', (req, res, next) => {
   const body = req.body
 
-  // no request body
-  if (!body.content) {
-    return res.status(404).send({
-      error: 'content missing'
-    })
-  }
   const newNote = new Note({
     content: body.content,
     date: new Date(),
     important: body.import || false,
   })
-  console.log('saving', )
-  newNote.save().then(savedNote => res.json(savedNote.toJSON()))
+
+  newNote.save()
+    .then(savedNote => savedNote.toJSON())
+    .then(jsonNote => res.json(jsonNote))
+    .catch(e => next(e))
 })
+
 
 app.delete('/api/notes/:id', (req, res, next) => {
   Note.findByIdAndRemove(req.params.id)
@@ -95,6 +92,7 @@ app.delete('/api/notes/:id', (req, res, next) => {
         error: 'note not found'
       })
     )
+    // catching Validation and server errors
     .catch(e => next(e))
 })
 
