@@ -10,7 +10,7 @@ const password = process.argv[2]
 
 // const url = `mongodb+srv://fullstack_user1:${password}@msmongo-x00kk.mongodb.net/${collectionName}?retryWrites=true&w=majority`
 
-const url = `mongodb://127.0.0.1:27017/fullstack/`
+const url = process.env.MONGODB_URL || `mongodb://127.0.0.1:27017/fullstack/`
 mongoConfig = { 
     useNewUrlParser: true,
     useUnifiedTopology: true
