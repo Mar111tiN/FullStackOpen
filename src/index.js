@@ -1,20 +1,9 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react'
+import ReactDOM from 'react-dom'
+import App from './App'
 
-const Hello = ({name, age}) => (
-  <div>
-    <p>Hello {name}, you are {age} years old</p>
-  </div>
+
+ReactDOM.render(
+  <App />,
+  document.getElementById('root')
 )
-
-
-const App = () => {
-  const now = new Date();
-  return (
-  <div>
-    <h1>Greetings</h1>
-    <Hello name="Martin" age="25"/>
-  </div>
-)
-}
-ReactDOM.render(<App />, document.getElementById('root'));
